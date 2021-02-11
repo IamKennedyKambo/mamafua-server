@@ -15,12 +15,7 @@ const getPassword = () => {
   return Buffer.from(shortCode + key + timestamp).toString("base64");
 };
 
-router.post("/confirm", (req, res, next) => {
-  //   console.log("-----------Received M-Pesa webhook-----------");
-
-  //   // format and dump the request payload recieved from safaricom in the terminal
-  //   console.log(prettyjson.render(req.body, options));
-  //   console.log("-----------------------");
+module.exports = router.post("/confirm", (req, res, next) => {
   var code = req.body.Body.stkCallback.ResultCode;
   var body = req.body.Body.stkCallback.CallbackMetadata;
   if (code == 0) {
@@ -48,6 +43,7 @@ router.post("/confirm", (req, res, next) => {
       .save()
       .then((result) => {
         io.getIO().emit("receipt", { action: "create", receipt: receipt });
+        next();
       })
       .catch((err) => {
         if (!err.statusCode) {
@@ -120,5 +116,3 @@ router.post("/pay", (req, res) => {
     }
   );
 });
-
-module.exports = router;

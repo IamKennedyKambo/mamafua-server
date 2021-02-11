@@ -7,6 +7,7 @@ const io = require("../../socket");
 const Order = require("../../models/new/order");
 const User = require("../../models/new/user");
 const Profile = require("../../models/new/profile");
+const Receipt = require("../../models/new/receipt");
 
 require("dotenv").config();
 
@@ -55,12 +56,7 @@ exports.getOrderByUserId = async (req, res, next) => {
 };
 
 exports.createOrder = (req, res, next) => {
-  // if (err) {
-  //   res.status(400).send({ message: "Payment was cancelled" });
-  // }
-
   const errors = validationResult(req);
-  console.log(req.body);
   if (!errors.isEmpty()) {
     const error = new Error("Validation Failed");
     error.statusCode = 422;
@@ -82,23 +78,29 @@ exports.createOrder = (req, res, next) => {
     services: req.body.services,
     placedBy: req.body.placedBy,
   });
+
+  Receipt.findOne({ number: order.phone }).then((err, result) => {
+    console.log(result);
+    console.log(err);
+  });
+
   order
     .save()
-    .then((result) => {
+    .then(() => {
       return Profile.findById(req.body.fullfillerId);
     })
     .then((profile) => {
       profile.jobs.push(order);
       return profile.save();
     })
-    .then((result) => {
+    .then(() => {
       return User.findById(req.body.placedBy);
     })
     .then((user) => {
       user.orders.push(order);
       return user.save();
     })
-    .then((result) => {
+    .then(() => {
       io.getIO().emit("orders", { action: "create", order: order });
       res.status(201).json({
         message: "Order created successfully!",
