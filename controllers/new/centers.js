@@ -50,7 +50,7 @@ exports.createCenter = (req, res, next) => {
       io.getIO().emit("centers", { action: "create", centers: centers });
       res.status(201).json({
         message: "Center created successfully!",
-        center: center,
+        center: centers,
       });
     })
     .catch((err) => {
