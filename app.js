@@ -14,6 +14,7 @@ const profileRoutes = require("./routes/new/profiles");
 const orderRoutes = require("./routes/new/order");
 const newsRoutes = require("./routes/new/messages");
 const requestRoutes = require("./routes/new/requests");
+const centerRoutes = require("./routes/new/centers");
 const authRoutes = require("./routes/new/auth");
 const paymentRoutes = require("./middleware/payment");
 
@@ -69,6 +70,7 @@ app.use("/profiles", profileRoutes);
 app.use("/orders", orderRoutes);
 app.use("/news", newsRoutes);
 app.use("/requests", requestRoutes);
+app.use("/centers", centerRoutes);
 app.use("/pay", paymentRoutes);
 
 app.use((error, req, res, next) => {
