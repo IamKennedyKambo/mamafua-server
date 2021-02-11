@@ -4,14 +4,14 @@ const path = require("path");
 const { validationResult } = require("express-validator");
 
 const io = require("../../socket");
-const Centers = require("../../models/new/center");
+const Center = require("../../models/new/center");
 
 exports.getCenters = async (req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 12;
   try {
-    const totalItems = await Centers.find().countDocuments();
-    const centers = await Centers.find()
+    const totalItems = await Center.find().countDocuments();
+    const centers = await Center.find()
       .sort({ createdAt: -1 })
       .skip((currentPage - 1) * perPage)
       .limit(perPage);
@@ -63,14 +63,14 @@ exports.createCenter = (req, res, next) => {
 
 exports.getCenter = (req, res, next) => {
   const centersId = req.params.centersId;
-  Centers.findById(centersId)
+  Center.findById(centersId)
     .then((centers) => {
       if (!centers) {
         const error = new Error("Cannot find centers");
         error.statusCode = 404;
         throw error;
       }
-      res.status(200).json({ message: "Centers fetched.", centers: centers });
+      res.status(200).json({ message: "Center fetched.", centers: centers });
     })
     .catch((err) => {
       if (!err.statusCode) {
@@ -91,7 +91,7 @@ exports.updateCenter = (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
 
-  Centers.findById(centersId)
+  Center.findById(centersId)
     .then((centers) => {
       if (!centers) {
         const error = new Error("Could not find centers.");
@@ -108,7 +108,7 @@ exports.updateCenter = (req, res, next) => {
     })
     .then((result) => {
       io.getIO().emit("centers", { action: "update", centers: result });
-      res.status(200).json({ message: "Centers updated!", centers: result });
+      res.status(200).json({ message: "Center updated!", centers: result });
     })
     .catch((err) => {
       if (!err.statusCode) {
@@ -120,7 +120,7 @@ exports.updateCenter = (req, res, next) => {
 
 exports.deleteCenter = (req, res, next) => {
   const centersId = req.params.centersId;
-  Centers.findById(centersId)
+  Center.findById(centersId)
     .then((centers) => {
       if (!centers) {
         const error = new Error("Could not find centers.");
@@ -128,11 +128,11 @@ exports.deleteCenter = (req, res, next) => {
         throw error;
       }
       clearImage(centers.imageUrl);
-      return Centers.findByIdAndRemove(centersId);
+      return Center.findByIdAndRemove(centersId);
     })
     .then((result) => {
       io.getIO().emit("centers", { action: "delete", centers: centersId });
-      res.status(200).json({ message: "Centers Deleted." });
+      res.status(200).json({ message: "Center Deleted." });
     })
     .catch((err) => {
       if (!err.statusCode) {
