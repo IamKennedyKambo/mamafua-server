@@ -84,7 +84,7 @@ router.post("/pay", (req, res) => {
         url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
         auth = `Bearer ${oauth_token}`,
         shortCode = "174379",
-        number = req.body.number;
+        number = req.body.phone;
 
       request(
         {
@@ -102,7 +102,7 @@ router.post("/pay", (req, res) => {
             PartyA: number,
             PartyB: shortCode,
             PhoneNumber: number,
-            CallBackURL: "https://089edff548bf.ngrok.io/pay/confirm/",
+            CallBackURL: "https://mamafua-api.xyz/pay/confirm/",
             AccountReference: "Mama Fua",
             TransactionDesc: "Services",
           },
