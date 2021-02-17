@@ -64,30 +64,28 @@ exports.createOrder = (req, res, next) => {
   }
 
   const order = new Order({
+    placedBy: req.body.placedBy,
+    phone: req.body.phone,
+    latitude: req.body.latitude,
+    longitude: req.body.longitude,
     amount: req.body.amount,
     paidVia: req.body.paidVia,
     status: req.body.status,
     transactionId: req.body.transactionId,
-    fullfillerId: req.body.fullfillerId,
-    fullfillerName: req.body.fullfillerName,
+    merchantRequestId: req.body.merchantRequestId,
+    checkoutRequestId: req.body.checkoutRequestId,
+    profileId: req.body.fullfillerId,
+    profileName: req.body.fullfillerName,
     center: req.body.center,
-    phone: req.body.phone,
-    longitude: req.body.longitude,
-    latitude: req.body.latitude,
-    deliveryDate: req.body.deliveryDate,
+    executionDate: req.body.executionDate,
+    paid: "",
     services: req.body.services,
-    placedBy: req.body.placedBy,
-  });
-
-  Receipt.findOne({ number: order.phone }).then((err, result) => {
-    console.log(result);
-    console.log(err);
   });
 
   order
     .save()
     .then(() => {
-      return Profile.findById(req.body.fullfillerId);
+      return Profile.findById(req.body.profileId);
     })
     .then((profile) => {
       profile.jobs.push(order);

@@ -42,7 +42,7 @@ exports.createCenter = (req, res, next) => {
     phone: req.body.phone,
     status: req.body.status,
     providers: [],
-    location: {longitude: req.body.longitude, latitude: req.body.latitude}
+    location: { longitude: req.body.longitude, latitude: req.body.latitude },
   });
   centers
     .save()

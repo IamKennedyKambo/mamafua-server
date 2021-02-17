@@ -3,6 +3,10 @@ const express = require("express");
 const router = express.Router();
 
 const Receipt = require("../models/new/receipt");
+const Order = require("../models/new/order");
+const Profile = require("../models/new/profile");
+const User = require("../models/new/user");
+const io = require("../socket");
 
 const getDate = () => {
   return new Date().toISOString().slice(-24).replace(/\D/g, "").slice(0, 14);
@@ -15,8 +19,9 @@ const getPassword = () => {
   return Buffer.from(shortCode + key + timestamp).toString("base64");
 };
 
-module.exports = router.post("/confirm", (req, res, next) => {
+module.exports = router.post("/confirm", (req, res) => {
   var code = req.body.Body.stkCallback.ResultCode;
+  var callback = req.body.Body.stkCallback;
   var body = req.body.Body.stkCallback.CallbackMetadata;
   if (code == 0) {
     let message = {
@@ -28,14 +33,18 @@ module.exports = router.post("/confirm", (req, res, next) => {
 
     //Create receipt here
     var stringedBody = JSON.stringify(body);
+    var stringedCallback = JSON.stringify(callback);
 
     var jsonBody = JSON.parse(stringedBody);
+    var jsonCallback = JSON.parse(stringedCallback);
 
     var receipt = new Receipt({
       number: jsonBody.Item[3].Value,
       transactionId: jsonBody.Item[1].Value,
       amount: jsonBody.Item[0].Value,
       date: jsonBody.Item[2].Value,
+      merchantRequestId: jsonCallback.MerchantRequestID,
+      checkoutRequestId: jsonCallback.CheckoutRequestID,
     });
 
     //Upload receipt here
@@ -43,7 +52,30 @@ module.exports = router.post("/confirm", (req, res, next) => {
       .save()
       .then((result) => {
         io.getIO().emit("receipt", { action: "create", receipt: receipt });
-        next();
+
+        Order.findOne({
+          merchantRequestId: jsonCallback.MerchantRequestID,
+          checkoutRequestId: jsonCallback.CheckoutRequestID,
+        })
+          .then((order) => {
+            Order.updateOne(
+              { _id: order._id },
+              {
+                receiptId: receipt._id,
+                merchantRequestId: receipt.merchantRequestId,
+                checkoutRequestId: receipt.checkoutRequestId,
+                transactionId: receipt.transactionId,
+                paid: receipt.date,
+              }
+            )
+              .then((order) => {})
+              .catch((err) => {});
+          })
+          .catch((err) => {
+            if (!err.statusCode) {
+              err.statusCode = 500;
+            }
+          });
       })
       .catch((err) => {
         if (!err.statusCode) {
@@ -51,15 +83,11 @@ module.exports = router.post("/confirm", (req, res, next) => {
         }
       });
   } else if (code == 1032) {
-    next(new Error("Payment cancelled!"));
-    console.log(req.body.Body);
   } else if (code == 17) {
-    next(new Error("Payment cancelled!"));
-    console.log(req.body.Body);
   }
 });
 
-router.post("/pay", (req, res) => {
+router.post("/", (req, res) => {
   var request = require("request"),
     consumer_key = "Q6A16D5ZHAgWWJOBtg2SU5LBNajMIUGk",
     consumer_secret = "9pPo40CvdLqDULyp",
@@ -102,7 +130,7 @@ router.post("/pay", (req, res) => {
             PartyA: number,
             PartyB: shortCode,
             PhoneNumber: number,
-            CallBackURL: "https://mamafua-api.xyz/pay/confirm/",
+            CallBackURL: "https://eff45c5a48c0.ngrok.io/pay/confirm/",
             AccountReference: "Mama Fua",
             TransactionDesc: "Services",
           },
@@ -110,7 +138,52 @@ router.post("/pay", (req, res) => {
         function (error, response, body) {
           if (error)
             res.status(400).send({ message: "Failed", payload: error });
-          else res.status(200).send({ message: "Success", payload: body });
+          else {
+            var order = new Order({
+              placedBy: req.body.placedBy,
+              phone: req.body.phone,
+              latitude: req.body.latitude,
+              longitude: req.body.longitude,
+              amount: req.body.amount,
+              paidVia: req.body.paidVia,
+              status: req.body.status,
+              transactionId: req.body.transactionId,
+              merchantRequestId: body.MerchantRequestID,
+              checkoutRequestId: body.CheckoutRequestID,
+              profileId: req.body.profileId,
+              profileName: req.body.profileName,
+              center: req.body.center,
+              executionDate: req.body.executionDate,
+              services: req.body.services,
+            });
+
+            order
+              .save()
+              .then(() => {
+                return Profile.findById(req.body.profileId);
+              })
+              .then((profile) => {
+                profile.jobs.push(order);
+                return profile.save();
+              })
+              .then(() => {
+                return User.findById(req.body.placedBy);
+              })
+              .then((user) => {
+                user.orders.push(order);
+                return user.save();
+              })
+              .then(() => {
+                io.getIO().emit("orders", { action: "create", order: order });
+              })
+              .catch((err) => {
+                if (!err.statusCode) {
+                  err.statusCode = 500;
+                }
+              });
+
+            res.status(200).send({ message: "Success", payload: body });
+          }
         }
       );
     }

@@ -18,6 +18,14 @@ const receiptSchema = new Schema({
     type: String,
     required: true,
   },
+  merchantRequestId: {
+    type: String,
+    required: true,
+  },
+  checkoutRequestId: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Receipt", receiptSchema);

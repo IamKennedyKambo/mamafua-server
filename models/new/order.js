@@ -3,13 +3,19 @@ const Schema = mongoose.Schema;
 
 const orderSchema = new Schema(
   {
-    amount: {
-      type: Number,
-      required: true,
-    },
     placedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true },
+    amount: {
+      type: Number,
       required: true,
     },
     paidVia: {
@@ -22,27 +28,30 @@ const orderSchema = new Schema(
     },
     transactionId: {
       type: String,
-      required: true,
     },
-    fullfillerId: {
+    merchantRequestId: {
+      type: String,
+    },
+    checkoutRequestId: {
+      type: String,
+    },
+    profileId: {
       type: Schema.Types.ObjectId,
       ref: "Profile",
       required: true,
     },
-    fullfillerName: {
+    profileName: {
       type: String,
       required: true,
     },
     center: {
       type: String,
     },
-    phone: {
+    executionDate: {
       type: String,
       required: true,
     },
-    latitude: { type: Number },
-    longitude: { type: Number },
-    deliveryDate: {
+    paid: {
       type: String,
     },
     services: [],
