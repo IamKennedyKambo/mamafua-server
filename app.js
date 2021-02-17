@@ -17,6 +17,7 @@ const requestRoutes = require("./routes/new/requests");
 const centerRoutes = require("./routes/new/centers");
 const authRoutes = require("./routes/new/auth");
 const paymentRoutes = require("./middleware/payment");
+const referralRoutes = require("./routes/new/referrals");
 
 const app = express();
 
@@ -72,6 +73,7 @@ app.use("/news", newsRoutes);
 app.use("/requests", requestRoutes);
 app.use("/centers", centerRoutes);
 app.use("/pay", paymentRoutes);
+app.use("/referrals", referralRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
