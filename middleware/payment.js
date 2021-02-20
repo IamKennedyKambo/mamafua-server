@@ -66,6 +66,7 @@ module.exports = router.post("/confirm", (req, res) => {
                 checkoutRequestId: receipt.checkoutRequestId,
                 transactionId: receipt.transactionId,
                 paid: receipt.date,
+                status: "Paid"
               }
             )
               .then((order) => {})
@@ -130,7 +131,7 @@ router.post("/", (req, res) => {
             PartyA: number,
             PartyB: shortCode,
             PhoneNumber: number,
-            CallBackURL: "https://mamafua-api.xyz/pay/confirm/",
+            CallBackURL: "https://mamafua-api.xyz/pay/confirm",
             AccountReference: "Mama Fua",
             TransactionDesc: "Services",
           },

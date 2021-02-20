@@ -14,7 +14,7 @@ router.post("/create", isPaid, orderController.createOrder);
 
 router.get("/find/:userId", orderController.getOrderByUserId);
 
-router.get("/:orderId", isAuth, orderController.getOrder);
+router.get("/:orderId", orderController.getOrder);
 
 router.put("/:orderId", isAuth, orderController.updateOrder);
 
