@@ -130,7 +130,7 @@ router.post("/", (req, res) => {
             PartyA: number,
             PartyB: shortCode,
             PhoneNumber: number,
-            CallBackURL: "https://eff45c5a48c0.ngrok.io/pay/confirm/",
+            CallBackURL: "https://mamafua-api.xyz/pay/confirm/",
             AccountReference: "Mama Fua",
             TransactionDesc: "Services",
           },

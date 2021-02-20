@@ -35,7 +35,7 @@ exports.signup = (req, res, next) => {
           userId: result._id.toString(),
         },
         process.env.SECRET,
-        { expiresIn: "6h" }
+        { expiresIn: "1h" }
       );
       res
         .status(201)
@@ -53,13 +53,12 @@ exports.login = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   let loadedUser;
-  console.log(email, password);
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
         const error = new Error("No user with that email exists");
         error.statusCode = 401;
-        throw error;
+        res.status(401).send({ message: "No such user exists", user: null });
       }
       loadedUser = user;
       console.log(loadedUser);
@@ -77,7 +76,7 @@ exports.login = (req, res, next) => {
           userId: loadedUser._id.toString(),
         },
         process.env.SECRET,
-        { expiresIn: "6h" }
+        { expiresIn: "1h" }
       );
       res.status(200).json({
         message: "Welcome to mama-fua",
