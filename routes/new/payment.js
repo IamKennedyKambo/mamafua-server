@@ -186,16 +186,22 @@ router.post("/", (req, res) => {
                   .status(200)
                   .send({ message: "Success", payload: body, order: result });
               })
+              .catch((err) => {
+                console.log(err);
+              })
               .then(() => {
                 return Profile.findById(req.body.profileId);
               })
+              .catch((err) => {})
               .then((profile) => {
                 profile.jobs.push(order);
                 return profile.save();
               })
+              .catch((err) => {})
               .then(() => {
                 return User.findById(req.body.placedBy);
               })
+              .catch((err) => {})
               .then((user) => {
                 user.orders.push(order);
                 return user.save();
