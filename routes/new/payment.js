@@ -2,11 +2,11 @@ require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 
-const Receipt = require("../models/new/receipt");
-const Order = require("../models/new/order");
-const Profile = require("../models/new/profile");
-const User = require("../models/new/user");
-const io = require("../socket");
+const Receipt = require("../../models/new/receipt");
+const Order = require("../../models/new/order");
+const Profile = require("../../models/new/profile");
+const User = require("../../models/new/user");
+const io = require("../../socket");
 
 const getDate = () => {
   return new Date().toISOString().slice(-24).replace(/\D/g, "").slice(0, 14);
@@ -19,7 +19,7 @@ const getPassword = () => {
   return Buffer.from(shortCode + key + timestamp).toString("base64");
 };
 
-module.exports = router.post("/confirm", (req, res) => {
+router.post("/confirmation", (req, res) => {
   var code = req.body.Body.stkCallback.ResultCode;
   var callback = req.body.Body.stkCallback;
   var body = req.body.Body.stkCallback.CallbackMetadata;
@@ -32,11 +32,11 @@ module.exports = router.post("/confirm", (req, res) => {
     var jsonBody = JSON.parse(stringedBody);
     var jsonCallback = JSON.parse(stringedCallback);
 
-    var receipt = new Receipt({
-      number: jsonBody.Item[3].Value,
+    const receipt = new Receipt({
+      number: jsonBody.Item[4].Value,
       transactionId: jsonBody.Item[1].Value,
       amount: jsonBody.Item[0].Value,
-      date: jsonBody.Item[2].Value,
+      date: jsonBody.Item[3].Value,
       merchantRequestId: jsonCallback.MerchantRequestID,
       checkoutRequestId: jsonCallback.CheckoutRequestID,
     });
@@ -46,6 +46,7 @@ module.exports = router.post("/confirm", (req, res) => {
       .save()
       .then((result) => {
         io.getIO().emit("receipt", { action: "create", receipt: receipt });
+        console.log("result 1" + result);
 
         Order.findOne({
           merchantRequestId: jsonCallback.MerchantRequestID,
@@ -133,7 +134,7 @@ router.post("/", (req, res) => {
             PartyA: number,
             PartyB: shortCode,
             PhoneNumber: number,
-            CallBackURL: "https://466c6c9eb208.ngrok.io/pay/confirm",
+            CallBackURL: "https://0dfdfc847d91.ngrok.io/pay/confirmation",
             AccountReference: "Mama Fua",
             TransactionDesc: "Services",
           },
@@ -192,3 +193,5 @@ router.post("/", (req, res) => {
     }
   );
 });
+
+module.exports = router;

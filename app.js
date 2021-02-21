@@ -16,7 +16,7 @@ const newsRoutes = require("./routes/new/messages");
 const requestRoutes = require("./routes/new/requests");
 const centerRoutes = require("./routes/new/centers");
 const authRoutes = require("./routes/new/auth");
-const paymentRoutes = require("./middleware/payment");
+const paymentRoutes = require("./routes/new/payment");
 const referralRoutes = require("./routes/new/referrals");
 
 const app = express();
