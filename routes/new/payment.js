@@ -178,10 +178,13 @@ router.post("/", (req, res) => {
 
             order
               .save()
-              .then(() => {
+              .then((result) => {
                 io.getIO().emit("orders", { action: "create", order: order });
                 console.log("--- order saving");
-                console.log(order);
+                console.log(result);
+                res
+                  .status(200)
+                  .send({ message: "Success", payload: body, order: result });
               })
               .then(() => {
                 return Profile.findById(req.body.profileId);
@@ -202,8 +205,6 @@ router.post("/", (req, res) => {
                   err.statusCode = 500;
                 }
               });
-
-            res.status(200).send({ message: "Success", payload: body });
           }
         }
       );
