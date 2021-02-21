@@ -46,14 +46,12 @@ router.post("/confirmation", (req, res) => {
       .save()
       .then((result) => {
         io.getIO().emit("receipt", { action: "create", receipt: receipt });
-        console.log("result 1" + result);
 
         Order.findOne({
           merchantRequestId: jsonCallback.MerchantRequestID,
           checkoutRequestId: jsonCallback.CheckoutRequestID,
         })
           .then((order) => {
-            console.log(order);
             Order.updateOne(
               { _id: order._id },
               {
