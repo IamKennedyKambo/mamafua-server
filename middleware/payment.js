@@ -20,17 +20,16 @@ const getPassword = () => {
 };
 
 module.exports = router.post("/confirm", (req, res) => {
+  let message = {
+    ResponseCode: "00000000",
+    ResponseDesc: "success",
+  };
+  res.send(message);
   var code = req.body.Body.stkCallback.ResultCode;
   var callback = req.body.Body.stkCallback;
   var body = req.body.Body.stkCallback.CallbackMetadata;
-  if (code == 0) {
-    let message = {
-      ResponseCode: "00000000",
-      ResponseDesc: "success",
-    };
-    // respond to safaricom servers with a success message
-    res.json(message);
 
+  if (code == 0) {
     //Create receipt here
     var stringedBody = JSON.stringify(body);
     var stringedCallback = JSON.stringify(callback);
@@ -58,6 +57,7 @@ module.exports = router.post("/confirm", (req, res) => {
           checkoutRequestId: jsonCallback.CheckoutRequestID,
         })
           .then((order) => {
+            console.log(order);
             Order.updateOne(
               { _id: order._id },
               {
@@ -66,7 +66,7 @@ module.exports = router.post("/confirm", (req, res) => {
                 checkoutRequestId: receipt.checkoutRequestId,
                 transactionId: receipt.transactionId,
                 paid: receipt.date,
-                status: "Paid"
+                status: "Paid",
               }
             )
               .then((order) => {})
@@ -83,6 +83,13 @@ module.exports = router.post("/confirm", (req, res) => {
           err.statusCode = 500;
         }
       });
+
+    let message = {
+      ResponseCode: "00000000",
+      ResponseDesc: "success",
+    };
+    // respond to safaricom servers with a success message
+    res.json(message);
   } else if (code == 1032) {
   } else if (code == 17) {
   }
@@ -131,7 +138,7 @@ router.post("/", (req, res) => {
             PartyA: number,
             PartyB: shortCode,
             PhoneNumber: number,
-            CallBackURL: "https://mamafua-api.xyz/pay/confirm",
+            CallBackURL: "https://466c6c9eb208.ngrok.io/pay/confirm",
             AccountReference: "Mama Fua",
             TransactionDesc: "Services",
           },
