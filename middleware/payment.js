@@ -20,11 +20,6 @@ const getPassword = () => {
 };
 
 module.exports = router.post("/confirm", (req, res) => {
-  let message = {
-    ResponseCode: "00000000",
-    ResponseDesc: "success",
-  };
-  res.send(message);
   var code = req.body.Body.stkCallback.ResultCode;
   var callback = req.body.Body.stkCallback;
   var body = req.body.Body.stkCallback.CallbackMetadata;
