@@ -24,6 +24,9 @@ router.post("/confirmation", (req, res) => {
   var callback = req.body.Body.stkCallback;
   var body = req.body.Body.stkCallback.CallbackMetadata;
 
+  console.log("--- confirmation body");
+  console.log(body);
+
   if (code == 0) {
     //Create receipt here
     var stringedBody = JSON.stringify(body);
@@ -41,17 +44,24 @@ router.post("/confirmation", (req, res) => {
       checkoutRequestId: jsonCallback.CheckoutRequestID,
     });
 
+    console.log("--- receipt");
+    console.log(receipt);
+
     //Upload receipt here
     receipt
       .save()
       .then((result) => {
         io.getIO().emit("receipt", { action: "create", receipt: receipt });
+        console.log("--- result");
+        console.log(result);
 
         Order.findOne({
           merchantRequestId: jsonCallback.MerchantRequestID,
           checkoutRequestId: jsonCallback.CheckoutRequestID,
         })
           .then((order) => {
+            console.log("--- order 1");
+            console.log(order);
             Order.updateOne(
               { _id: order._id },
               {
@@ -63,7 +73,10 @@ router.post("/confirmation", (req, res) => {
                 status: "Paid",
               }
             )
-              .then((order) => {})
+              .then((order) => {
+                console.log("--- order 2");
+                console.log(order);
+              })
               .catch((err) => {});
           })
           .catch((err) => {
@@ -133,6 +146,7 @@ router.post("/", (req, res) => {
             PartyB: shortCode,
             PhoneNumber: number,
             CallBackURL: "https://mamafua-api.xyz/pay/confirmation",
+            // CallBackURL: "https://9b777cf8fcae.ngrok.io/pay/confirmation",
             AccountReference: "Mama Fua",
             TransactionDesc: "Services",
           },
@@ -159,8 +173,16 @@ router.post("/", (req, res) => {
               services: req.body.services,
             });
 
+            console.log("--- order");
+            console.log(order);
+
             order
               .save()
+              .then(() => {
+                io.getIO().emit("orders", { action: "create", order: order });
+                console.log("--- order saving");
+                console.log(order);
+              })
               .then(() => {
                 return Profile.findById(req.body.profileId);
               })
@@ -174,9 +196,6 @@ router.post("/", (req, res) => {
               .then((user) => {
                 user.orders.push(order);
                 return user.save();
-              })
-              .then(() => {
-                io.getIO().emit("orders", { action: "create", order: order });
               })
               .catch((err) => {
                 if (!err.statusCode) {
