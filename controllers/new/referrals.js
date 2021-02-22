@@ -36,24 +36,19 @@ exports.createReferral = (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
-  if (!req.file) {
-    const error = new Error("No image provided.");
-    error.statusCode = 422;
-    throw error;
-  }
 
-  let fileUrl = req.file.path.replace(/\\/g, "/");
   const referrals = new Referrals({
-    title: req.body.title,
-    content: req.body.content,
-    imageUrl: fileUrl,
+    referrer: req.body.referrer,
+    discount: req.body.discount,
+    validFor: req.body.validFor,
+    code: req.body.code,
   });
   referrals
     .save()
     .then((result) => {
       io.getIO().emit("referrals", { action: "create", referrals: referrals });
       res.status(201).json({
-        message: "Referrals created successfully!",
+        message: "Referral created successfully!",
         referrals: referrals,
       });
     })
@@ -96,15 +91,7 @@ exports.updateReferral = (req, res, next) => {
   }
   const title = req.body.title;
   const content = req.body.content;
-  let imageUrl = req.body.image;
-  if (req.file) {
-    imageUrl = req.file.path;
-  }
-  if (!imageUrl) {
-    const error = new Error("No file picked.");
-    error.statusCode = 422;
-    throw error;
-  }
+
   Referrals.findById(referralId)
     .then((referrals) => {
       if (!referrals) {

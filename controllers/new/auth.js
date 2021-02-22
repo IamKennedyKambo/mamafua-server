@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const User = require("../../models/new/user");
+const user = require("../../models/new/user");
 
 exports.signup = (req, res, next) => {
   const errors = validationResult(req);
@@ -49,6 +50,41 @@ exports.signup = (req, res, next) => {
     });
 };
 
+exports.refreshToken = (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.sendStatus(401);
+  }
+
+  if (!refreshTokens.includes(token)) {
+    return res.sendStatus(403);
+  }
+
+  jwt.verify(token, refreshTokenSecret, (err, user) => {
+    if (err) {
+      return res.sendStatus(403);
+    }
+
+    const accessToken = jwt.sign(
+      { username: user.username, role: user.role },
+      accessTokenSecret,
+      { expiresIn: "20m" }
+    );
+
+    res.json({
+      accessToken,
+    });
+  });
+};
+
+exports.logOut = (req, res) => {
+  const { token } = req.body;
+  refreshTokens = refreshTokens.filter((token) => t !== token);
+
+  res.send("Logout successful");
+};
+
 exports.login = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -78,6 +114,17 @@ exports.login = (req, res, next) => {
         process.env.SECRET,
         { expiresIn: "1h" }
       );
+      const refreshToken = jwt.sign(
+        {
+          email: loadedUser.email,
+          userId: loadedUser._id.toString(),
+        },
+        process.env.SECRET,
+        { expiresIn: "1h" }
+      );
+
+      //Save token to db
+      refreshTokens.push(refreshToken);
       res.status(200).json({
         message: "Welcome to mama-fua",
         token: token,
