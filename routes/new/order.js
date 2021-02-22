@@ -13,7 +13,7 @@ router.post("/create", orderController.createOrder);
 
 router.get("/find/:userId", orderController.getOrderByUserId);
 
-router.get("/:orderId", orderController.getOrder);
+router.get("/:orderId", orderController.getOrderById);
 
 router.put("/:orderId", isAuth, orderController.updateOrder);
 

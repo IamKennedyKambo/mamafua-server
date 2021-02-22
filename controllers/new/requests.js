@@ -5,7 +5,7 @@ const { validationResult } = require("express-validator");
 
 const io = require("../../socket");
 const Request = require("../../models/new/request");
-const Profile = require("../../models/new/profile");
+const User = require("../../models/new/user");
 
 exports.getRequests = async (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -39,6 +39,7 @@ exports.createRequest = (req, res, next) => {
   }
 
   const request = new Request({
+    userId: req.body.userId,
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     phone: req.body.phone,
@@ -48,6 +49,13 @@ exports.createRequest = (req, res, next) => {
     .save()
     .then((result) => {
       io.getIO().emit("requests", { action: "create", request: request });
+      User.findOneAndUpdate(
+        { _id: req.body.userId },
+        { requesting: true },
+        { new: true }
+      )
+        .then((user) => {})
+        .catch((err) => {});
       res.status(201).json({
         message: "Request created successfully!",
         request: request,

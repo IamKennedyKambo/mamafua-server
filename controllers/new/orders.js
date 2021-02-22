@@ -113,8 +113,9 @@ exports.createOrder = (req, res, next) => {
     });
 };
 
-exports.getOrder = (req, res, next) => {
+exports.getOrderById = (req, res, next) => {
   const orderId = req.params.orderId;
+  console.log(req.params);
   Order.findById(orderId)
     .then((order) => {
       if (!order) {
