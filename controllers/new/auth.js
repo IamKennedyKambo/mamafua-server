@@ -85,10 +85,15 @@ exports.logOut = (req, res) => {
   res.send("Logout successful");
 };
 
+function omit(obj, key) {
+  const { [key]: ignore, ...rest } = obj;
+  return rest;
+}
+
 exports.login = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
-  let loadedUser;
+  var loadedUser;
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
@@ -119,12 +124,14 @@ exports.login = (req, res, next) => {
           email: loadedUser.email,
           userId: loadedUser._id.toString(),
         },
-        process.env.SECRET,
+        process.env.REFRESH_SECRET,
         { expiresIn: "1h" }
       );
 
       //Save token to db
-      refreshTokens.push(refreshToken);
+      // refreshTokens.push(refreshToken);
+      loadedUser.password = undefined;
+      loadedUser = JSON.parse(JSON.stringify(loadedUser));
       res.status(200).json({
         message: "Welcome to mama-fua",
         token: token,
