@@ -134,7 +134,8 @@ exports.login = (req, res, next) => {
       loadedUser = JSON.parse(JSON.stringify(loadedUser));
       res.status(200).json({
         message: "Welcome to mama-fua",
-        token: token,
+        authToken: token,
+        refreshToken: refreshToken,
         user: loadedUser,
       });
     })
