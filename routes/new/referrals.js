@@ -11,7 +11,7 @@ router.get("/", referralController.getReferrals);
 
 router.post("/create", isAuth, referralController.createReferral);
 
-router.get("/:code", isAuth, referralController.getReferral);
+router.get("/:code", referralController.getReferral);
 
 router.put("/:referralId", isAuth, referralController.updateReferral);
 
