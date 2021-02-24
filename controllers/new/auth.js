@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const User = require("../../models/new/user");
-const user = require("../../models/new/user");
+const Token = require("../../models/new/tokens");
 
 exports.signup = (req, res, next) => {
   const errors = validationResult(req);
@@ -85,11 +85,6 @@ exports.logOut = (req, res) => {
   res.send("Logout successful");
 };
 
-function omit(obj, key) {
-  const { [key]: ignore, ...rest } = obj;
-  return rest;
-}
-
 exports.login = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -125,11 +120,14 @@ exports.login = (req, res, next) => {
           userId: loadedUser._id.toString(),
         },
         process.env.REFRESH_SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "6h" }
       );
 
       //Save token to db
       // refreshTokens.push(refreshToken);
+      const newToken = Token({ authToken: token, refreshToken: refreshToken });
+      newToken.save();
+
       loadedUser.password = undefined;
       loadedUser = JSON.parse(JSON.stringify(loadedUser));
       res.status(200).json({

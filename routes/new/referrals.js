@@ -11,10 +11,10 @@ router.get("/", referralController.getReferrals);
 
 router.post("/create", isAuth, referralController.createReferral);
 
-router.get("/referralId", isAuth, referralController.getReferral);
+router.get("/:code", isAuth, referralController.getReferral);
 
-router.put("/referralId", isAuth, referralController.updateReferral);
+router.put("/:referralId", isAuth, referralController.updateReferral);
 
-router.delete("/referralId", isAuth, referralController.deleteReferral);
+router.delete("/:referralId", isAuth, referralController.deleteReferral);
 
 module.exports = router;

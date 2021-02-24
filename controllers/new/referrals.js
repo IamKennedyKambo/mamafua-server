@@ -61,17 +61,18 @@ exports.createReferral = (req, res, next) => {
 };
 
 exports.getReferral = (req, res, next) => {
-  const referralId = req.params.referralId;
-  Referrals.findById(referralId)
+  const code = req.params.code;
+  console.log(req.params);
+  Referrals.findOne({ code: code })
     .then((referrals) => {
       if (!referrals) {
-        const error = new Error("Cannot find referrals");
+        const error = new Error("Cannot find referral");
         error.statusCode = 404;
         throw error;
       }
       res
         .status(200)
-        .json({ message: "Referrals fetched.", referrals: referrals });
+        .json({ message: "Referral fetched.", referrals: referrals });
     })
     .catch((err) => {
       if (!err.statusCode) {
