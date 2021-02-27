@@ -11,6 +11,8 @@ router.get("/", profileController.getProfiles);
 
 router.get("/findbycenter/:centerId", profileController.getProfilesByCenter);
 
+router.post("/login", profileController.login);
+
 router.post("/create", isAuth, profileController.createProfile);
 
 router.post("/findOne", isAuth, profileController.getProfileById);

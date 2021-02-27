@@ -55,8 +55,31 @@ exports.getOrderByUserId = async (req, res, next) => {
   }
 };
 
+exports.getOrderByProfileId = async (req, res, next) => {
+  const profileId = req.query.profileId;
+  console.log(req);
+  try {
+    const orders = await Order.find({})
+      .where("profileId")
+      .equals(profileId)
+      .sort({ createdAt: -1 });
+    res.status(200).json({
+      message: "Fetched orders successfully.",
+      orders: orders,
+    });
+
+    console.log(orders);
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 exports.createOrder = (req, res, next) => {
   const errors = validationResult(req);
+  console.log(req.body);
   if (!errors.isEmpty()) {
     const error = new Error("Validation Failed");
     error.statusCode = 422;
@@ -74,8 +97,8 @@ exports.createOrder = (req, res, next) => {
     transactionId: req.body.transactionId,
     merchantRequestId: req.body.merchantRequestId,
     checkoutRequestId: req.body.checkoutRequestId,
-    profileId: req.body.fullfillerId,
-    profileName: req.body.fullfillerName,
+    profileId: req.body.profileId,
+    profileName: req.body.profileName,
     center: req.body.center,
     executionDate: req.body.executionDate,
     paid: "",

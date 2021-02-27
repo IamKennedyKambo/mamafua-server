@@ -24,8 +24,8 @@ router.post("/confirmation", (req, res) => {
   var callback = req.body.Body.stkCallback;
   var body = req.body.Body.stkCallback.CallbackMetadata;
 
-  console.log("--- confirmation body");
-  console.log(body);
+  // console.log("--- confirmation body");
+  // console.log(body);
 
   if (code == 0) {
     //Create receipt here
@@ -36,32 +36,32 @@ router.post("/confirmation", (req, res) => {
     var jsonCallback = JSON.parse(stringedCallback);
 
     const receipt = new Receipt({
-      number: jsonBody.Item[4].Value,
+      number: jsonBody.Item[3].Value,
       transactionId: jsonBody.Item[1].Value,
       amount: jsonBody.Item[0].Value,
-      date: jsonBody.Item[3].Value,
+      date: jsonBody.Item[2].Value,
       merchantRequestId: jsonCallback.MerchantRequestID,
       checkoutRequestId: jsonCallback.CheckoutRequestID,
     });
 
-    console.log("--- receipt");
-    console.log(receipt);
+    // console.log("--- receipt");
+    // console.log(receipt);
 
     //Upload receipt here
     receipt
       .save()
       .then((result) => {
         io.getIO().emit("receipt", { action: "create", receipt: receipt });
-        console.log("--- result");
-        console.log(result);
+        // console.log("--- result");
+        // console.log(result);
 
         Order.findOne({
           merchantRequestId: jsonCallback.MerchantRequestID,
           checkoutRequestId: jsonCallback.CheckoutRequestID,
         })
           .then((order) => {
-            console.log("--- order 1");
-            console.log(order);
+            // console.log("--- order 1");
+            // console.log(order);
             Order.updateOne(
               { _id: order._id },
               {
@@ -74,8 +74,8 @@ router.post("/confirmation", (req, res) => {
               }
             )
               .then((order) => {
-                console.log("--- order 2");
-                console.log(order);
+                // console.log("--- order 2");
+                // console.log(order);
               })
               .catch((err) => {});
           })
@@ -145,16 +145,17 @@ router.post("/", (req, res) => {
             PartyA: number,
             PartyB: shortCode,
             PhoneNumber: number,
-            CallBackURL: "https://mamafua-api.xyz/pay/confirmation",
-            // CallBackURL: "https://9b777cf8fcae.ngrok.io/pay/confirmation",
+            // CallBackURL: "https://mamafua-api.xyz/pay/confirmation",
+            CallBackURL: "https://00713c9a66b5.ngrok.io/pay/confirmation",
             AccountReference: "Mama Fua",
             TransactionDesc: "Services",
           },
         },
         function (error, response, body) {
-          if (error)
+          if (error) {
+            // console.log(error);
             res.status(400).send({ message: "Failed", payload: error });
-          else {
+          } else {
             var order = new Order({
               placedBy: req.body.placedBy,
               phone: req.body.phone,
@@ -173,8 +174,8 @@ router.post("/", (req, res) => {
               services: req.body.services,
             });
 
-            console.log("--- order");
-            console.log(order);
+            // console.log("--- order");
+            // console.log(order);
 
             order
               .save()

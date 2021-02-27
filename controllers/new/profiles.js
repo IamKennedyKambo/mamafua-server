@@ -7,6 +7,26 @@ const io = require("../../socket");
 const Profile = require("../../models/new/profile");
 const User = require("../../models/user");
 
+exports.login = async (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  Profile.findOne({ email: email, password: password })
+    .then((profile) => {
+      if (!profile) {
+        const error = new Error("Profile does not exist");
+        error.statusCode = 404;
+        throw error;
+      }
+      res.status(200).json({ message: "Welcome.", profile: profile });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
 exports.getProfiles = async (req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 12;
