@@ -17,7 +17,7 @@ router.post("/create", isAuth, profileController.createProfile);
 
 router.post("/findOne", isAuth, profileController.getProfileById);
 
-router.put("/profile/:profileId", isAuth, profileController.updateProfile);
+router.put("/:profileId/:status", profileController.updateProfile);
 
 router.delete("/profile/:profileId", isAuth, profileController.deleteProfile);
 

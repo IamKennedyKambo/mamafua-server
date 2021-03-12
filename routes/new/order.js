@@ -17,7 +17,7 @@ router.get("/get/:profileId", orderController.getOrderByProfileId);
 
 router.get("/:orderId", orderController.getOrderById);
 
-router.put("/:orderId", isAuth, orderController.updateOrder);
+router.put("/:orderId/:status", orderController.updateOrder);
 
 router.delete("/:orderId", isAuth, orderController.deleteOrder);
 

@@ -133,48 +133,15 @@ exports.getProfileById = (req, res, next) => {
 
 exports.updateProfile = (req, res, next) => {
   const profileId = req.params.profileId;
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed, entered data is incorrect.");
-    error.statusCode = 422;
-    throw error;
-  }
-  const title = req.body.title;
-  const content = req.body.content;
-  let imageUrl = req.body.image;
-  if (req.file) {
-    imageUrl = req.file.path;
-  }
-  if (!imageUrl) {
-    const error = new Error("No file picked.");
-    error.statusCode = 422;
-    throw error;
-  }
-
-  Profile.findById(profileId)
-    .then((profile) => {
-      if (!profile) {
-        const error = new Error("Could not find profile.");
-        error.statusCode = 404;
-        throw error;
-      }
-      if (imageUrl !== profile.imageUrl) {
-        clearImage(profile.imageUrl);
-      }
-      profile.title = title;
-      profile.imageUrl = imageUrl;
-      profile.content = content;
-      return profile.save();
-    })
+  const status = req.params.status;
+  Profile.findByIdAndUpdate({ _id: profileId }, { available: status })
     .then((result) => {
-      io.getIO().emit("profiles", { action: "update", profile: result });
-      res.status(200).json({ message: "Profile updated!", profile: result });
+      res
+        .status(200)
+        .send({ message: "Profile status changed", profile: result });
     })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+    .catch((error) => {
+      if (error) res.status(400).send({ message: "Task failed", error: error });
     });
 };
 
